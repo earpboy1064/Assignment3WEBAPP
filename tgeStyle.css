@@ -1,0 +1,79 @@
+/*
+Css for tgerental.xsl
+written by Wyatt LeMaster
+for Comp   */
+
+body
+{
+	background-color: #ffffff;
+	color: #000000;
+}
+
+header
+{
+border:1px solid;
+display: block;
+text-align:center;
+
+}
+
+img
+{
+display: inline-block;
+margin:0;
+}
+
+.center 
+{
+margin-left: auto;
+margin-right: auto;
+}
+
+table, th, td {
+
+border: 1px solid;
+width: 90%;
+border-collapse: collapse;
+text-align: left;
+vertical-align: top;
+padding: 5px;
+
+}
+
+.customerCell
+{
+width: 10px;
+}
+
+.toolIDCell
+{
+width: 10px;
+}
+
+
+.toolCell
+{
+width: 10px;
+}
+
+.categoryCell
+{
+width: 10px;
+}
+
+.dueBackCell
+{
+width: 10px;
+}
+
+.chargeCell
+{
+width: 10px;
+}
+
+th
+{
+background-color: #ffa319
+}
+
+ tr:nth-child(odd) {background-color: #a6e7f7;} 
