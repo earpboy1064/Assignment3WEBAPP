@@ -27,25 +27,237 @@
 		</head>
 		<body>
 		<h1>Current Rentals</h1>
-		<xsl:apply-templates select="rentals/rental"></xsl:apply-templates>
 		
 		
-		Test Body
-		<xsl:for-each-group select="rentals/rental" group-by="custID">
-		<xsl:sort select= "current-grouping-key()"/>
-		<xsl:variable name="custList" select="doc('tgecustomers.xml')/customers/customer [@custID=current-grouping-key()]" />
+		 <xsl:for-each-group select="rentals/rental" group-by="Start_Date">
+               <xsl:sort select="current-grouping-key()" />
+               <h1><xsl:value-of select = "current-grouping-key()"/></h1> <!-- 2.b Displaying current key using current-grouping-key()-->
 
-		<xsl:value-of select= "$custList/firstName" />
+<!--
+               <xsl:variable name="custList"
+                select="doc('tgecustomers.xml')/customers/customer[@custID=current-grouping-key()]" />
+
+               <h2>Customer ID:
+                   <xsl:value-of select="current-grouping-key()" />
+               </h2>
+
+               <p>
+                  <xsl:value-of select="$custList/firstName" />
+                  <xsl:text> </xsl:text>
+                  <xsl:value-of select="$custList/lastName" /><br />
+                  <xsl:value-of select="$custList/street" /><br />
+                  <xsl:value-of select="$custList/city" />,
+                  <xsl:value-of select="$custList/state" />
+                  <xsl:text> </xsl:text>
+                  <xsl:value-of select="$custList/zip" />
+               </p>
+		-->
 		
 		
-		</xsl:for-each-group>
+		
+		
+   <table id ="rentals" class="head"  cellpadding="2">
+                  <thead>                  
+                     <tr>
+                        <th>Customer</th>
+                        <th>ID</th>
+                        <th>Tool ID</th>
+                        <th>Tool</th>
+                        <th>Category</th>
+                        <th>Due Back</th>
+                        <th>Charge</th>
+                     </tr>
+                  </thead>	
+                  <tbody>			
+       	          <xsl:apply-templates select="current-group()" />
+                  </tbody>
+               </table>
+               
+               </xsl:for-each-group>
+             
+		
+		<!--<xsl:apply-templates select="rentals/rental"></xsl:apply-templates> -->
+		
+		
+		
 		cat
 		</body>
 	</html>
    </xsl:template>
 
 
-  <xsl:template match="rentals/rental">
+
+
+ <xsl:template match="rentals/rental">
+      <tr>
+      <th class = "CustomerCell" >
+       <xsl:apply-templates select="rental/Customer" />
+
+      </th>
+         <th class="IDcell">
+            <xsl:value-of select="Customer" />
+         </th>
+         <th class="ToolIDCell">
+           <xsl:value-of select="Tool" />
+         </th>
+         <th class="ToolCell">
+			 <xsl:variable name="tID" select="Tool" /> <!-- creates variable named tID that is the value of tool in rgeRentals--> 
+							<xsl:for-each select = "$toolsDoc"> <!--selects the tgetools file so we can get the tool data from it.-->
+							<!--<xsl:value-of select="key('tKey','EM247-16')"/> -->
+							<xsl:value-of select="key('tKey',$tID)/description"/><!--tKey represents the toolID that we are compairing to the tID which is the tool ID from tgerentals  $ represents that variable not its children-->
+							</xsl:for-each>
+							
+            <xsl:apply-templates select="rental/Tool" />
+         </th>
+         
+         <th class="CategoryCell">
+			 <xsl:variable name="tID" select="Tool" /> <!-- creates variable named tID that is the value of tool in rgeRentals--> 
+							<xsl:for-each select = "$toolsDoc"> <!--selects the tgetools file so we can get the tool data from it.-->
+							<!--<xsl:value-of select="key('tKey','EM247-16')"/> -->
+							<xsl:value-of select="key('tKey',$tID)/category"/><!--tKey represents the toolID that we are compairing to the tID which is the tool ID from tgerentals  $ represents that variable not its children-->
+							</xsl:for-each>
+							
+			   <xsl:apply-templates select="equipment/toolID" mode="toolCat" />
+         </th>
+
+         <th class="ReturnDateCell">
+            <xsl:value-of select= "format-date(fixt:getDate(Days,Weeks,Start_Date), '[D1] [MNn] [Y1]')"/>  <!-- 2.d Date format using XPath 2.o picture formats -->
+
+         </th>
+         
+         <th class="ChargeCell">
+               <xsl:value-of select= "fixt:Charge(Days,Weeks,Tool)"/>
+
+         
+         </th>
+
+      </tr>
+
+   </xsl:template>
+
+
+<xsl:template match="rental/Tool">
+<xsl:variable name="tgetools"
+       select="doc('tgetools.xml')/equipment/tool[Tool=current()]" />
+      <xsl:value-of select="current()" />:
+      <xsl:value-of select="$tgetools/description" />
+      
+</xsl:template>
+
+<xsl:template match="toolID" mode="toolCat">
+<xsl:variable name="Tool"
+       select="doc('tgetools.xml')/equipment/tool[toolID=current()]" />
+      <xsl:value-of select="current()" />:
+      <xsl:value-of select="$Tool/category" />
+      
+</xsl:template>
+
+<xsl:template match="Customer">
+
+      <xsl:variable name="custList"
+                select="doc('tgecustomers.xml')/customers/customer[@custID=current()]" />
+
+               <h2>Customer ID:
+                   <xsl:value-of select="current()" />
+               </h2>
+
+               <p>
+                  <xsl:value-of select="$custList/firstName" />
+                  <xsl:text> </xsl:text>
+                  <xsl:value-of select="$custList/lastName" /><br />
+                  <xsl:value-of select="$custList/street" /><br />
+                  <xsl:value-of select="$custList/city" />,
+                  <xsl:value-of select="$custList/state" />
+                  <xsl:text> </xsl:text>
+                  <xsl:value-of select="$custList/zip" />
+               </p>
+ </xsl:template>
+
+      <xsl:function name="fixt:getDate" as="xs:date">
+   
+	   <xsl:param name="Days" as="xs:integer" />
+	   	<xsl:param name="Weeks" as="xs:integer" />	
+	   	<xsl:param name="Start_Date" as="xs:date" />	
+
+				
+				<xsl:variable name="TotalDays" select="$Days+($Weeks*7)"/>
+
+				<xsl:variable name="Days" select="concat('P',$TotalDays,'D')"/>
+
+
+				<xsl:variable name="updatedDate" as="xs:date" select="xs:date($Start_Date) + xs:dayTimeDuration($Days)"/>
+
+                     <xsl:sequence select="$updatedDate" />
+                     
+   
+   </xsl:function>
+   
+   
+   <xsl:function name="fixt:Charge" as="xs:integer"> <!--2e Application of XML Schema Datatype to a function -->
+   
+	  
+	   	<xsl:param name="Days" as="xs:integer" />
+	    <xsl:param name="Weeks" as="xs:integer" />	
+	    <xsl:param name="tID" as="xs:string" />
+	
+
+
+	 <xsl:variable name="toolList"
+                select="doc('tgetools.xml')/equipment/tool[@toolID =  $tID]" />
+                
+                <xsl:variable name="Drate" as="xs:integer" select="xs:integer($toolList/dailyRate)*$Days" />  <!--2e Application of XML Schema Datatype to a variable -->
+                <xsl:variable name="Wrate" as="xs:integer" select="xs:integer($toolList/weeklyRate)*$Weeks" />
+				<xsl:variable name="totalRate" as="xs:integer" select="$Drate+$Wrate" />
+
+
+                <xsl:sequence select="$totalRate" />
+
+
+				
+                
+   
+   </xsl:function>
+   
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <!--<xsl:template match="rentals/rental"> -->
+   <xsl:template match="tmp">
+
    <table class= "head" cellpadding="2">
 				<tbody>
 				<tr>
@@ -171,25 +383,7 @@
   
    </xsl:template>
    
-   <xsl:function name="fixt:getDate" as="xs:date">
-   
-	   <xsl:param name="Days" as="xs:integer" />
-	   	<xsl:param name="Weeks" as="xs:integer" />	
-	   	<xsl:param name="Start_Date" as="xs:date" />	
-
-				
-				<xsl:variable name="TotalDays" select="$Days+($Weeks*7)"/>
-
-				<xsl:variable name="Days" select="concat('P',$TotalDays,'D')"/>
-
-
-				<xsl:variable name="updatedDate" as="xs:date" select="xs:date($Start_Date) + xs:dayTimeDuration($Days)"/>
-
-                     <!--<xsl:value-of select="$updatedDate"/>   Not needed-->
-                     <xsl:sequence select="$updatedDate" />
-                     
-   
-   </xsl:function>
+  
    
  <!--
  <xsl:template match= "rentals/rental">
