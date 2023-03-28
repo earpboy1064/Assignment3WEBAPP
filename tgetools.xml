@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!--
-   New Perspectives on XML 3rd Edition
-   Tutorial 8
-   Case Problem 4
+  
+	Wyatt LeMaster 
 
-   The Good Earth equipment list
+   Assignment 3
+   Comp 6000 
+   The Good Earth tool list
 
-   Filename:         equipment.xml
+   Filename:         tgetools.xml
    Supporting Files: 
 
 -->
-
 <equipment>
 	<tool toolID="EM247-16">
 		<description>4WD MICRO BACKHOE 6' DIG DEPTH</description>

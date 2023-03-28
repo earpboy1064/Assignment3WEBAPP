@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  
+Wyatt LeMaster 
 
+   Assignment 3
+   Comp 6000 
+   
+   Generates html file tgerental.html to display customer rentals.
+   The customers are grouped by the day they rented the equipment.
+   The information shown includes the customer name, tool ID
+   tool description, category of the tool, the date the tool us due back,
+   the charge for the tool rental.  
+
+   Filename:         tgerentals.xsl
+   Supporting Files: tgerentals.xml, tgecustomers.xml, tgetools.xml
+
+-->
 
 
 <xsl:stylesheet version="2.0"
@@ -8,7 +24,9 @@
      xmlns:fixt="http://example.com//illumfixtures"
       >
 	<xsl:variable name="toolsDoc" select = "document('tgetools.xml')"/>
-<!--Note: Documet is only used for getting the data from a file once. Doc is still used in many places so as to satisfy the requirment--> 
+<!--Note: Documet is only used for getting the data from a file once. Doc is used to collect data in the functions:
+fixt:Charge, fixt:CustomerData  --> 
+
 
 	<xsl:key name="tKey" match="tool" use="@toolID"/>
 	 
@@ -26,24 +44,24 @@
 		
 		<body>
 		
-		<header><img src="tgelogo.png"/></header>
+			<header><img src="tgelogo.png"/></header>
 		
-		<h2 class="center">Current Rentals </h2>
+			<h2 class="center">Current Rentals </h2>
 	
-		 <xsl:for-each-group select="rentals/rental" group-by="Start_Date">
-		 <!--Grouping key is start date-->
+			<xsl:for-each-group select="rentals/rental" group-by="Start_Date">
+			<!--Grouping key is start date-->
 		 
-               <xsl:sort select="current-grouping-key()" />
+             <xsl:sort select="current-grouping-key()" />
                
-               <xsl:variable name="date" select="format-date(xs:date(current-grouping-key()), '[MNn] [D1] [Y1]')"/>
-                <!-- 2.d Date format using XPath 2.0 picture formats -->
+            <xsl:variable name="date" select="format-date(xs:date(current-grouping-key()), '[MNn] [D1] [Y1]')"/>
+            <!-- 2.d Date format using XPath 2.0 picture formats -->
 
-               <h3><xsl:value-of select = "$date"/></h3> 
-               <!-- 2.b Displaying current key using current-grouping-key()-->
+            <h3><xsl:value-of select = "$date"/></h3> 
+            <!-- 2.b Displaying current key using current-grouping-key()-->
 
 		
 		
-   <table id ="rentals" class = "center" cellpadding="2">
+			<table id ="rentals" class = "center" cellpadding="2">
                   <thead>                  
                      <tr>
                         <th class="customerCell"> Customer</th>
@@ -62,9 +80,9 @@
        	          
                   </tbody>
                   
-               </table>
+            </table>
                
-               </xsl:for-each-group>	
+            </xsl:for-each-group>	
 		</body>
 	</html>
    </xsl:template>
@@ -80,44 +98,41 @@
 
       </td>
          
-         <td class="toolIDCell">
+        <td class="toolIDCell">
            <!-- displays tool ID--> 
            <xsl:value-of select="Tool" />
            
-         </td>
-         <td class="toolCell">
+        </td>
+         
+        <td class="toolCell">
             <!--This is used to access the description of the tool
 			This is using document not Doc but I use doc in the functions so that the requirement is met,
 			I wrote this before understanding doc and did not want to lose the work I had done. Hopefully this is okay-->    
 
-			 <xsl:variable name="tID" select="Tool" /> 
-							<xsl:for-each select = "$toolsDoc"> 
-							<xsl:value-of select="key('tKey',$tID)/description"/>
-							</xsl:for-each>
-							
-         </td>
+			<xsl:variable name="tID" select="Tool" /> 
+				<xsl:for-each select = "$toolsDoc"> 
+					<xsl:value-of select="key('tKey',$tID)/description"/>
+				</xsl:for-each>				
+        </td>
          
-         <td class="categoryCell">
+        <td class="categoryCell">
          
 			  <!-- displays tool category--> 
-			 <xsl:variable name="tID" select="Tool" /> 
-			<xsl:for-each select = "$toolsDoc"> 
-				<xsl:value-of select="key('tKey',$tID)/category"/>
-			</xsl:for-each>
-							
-         </td>
+			<xsl:variable name="tID" select="Tool" /> 
+				<xsl:for-each select = "$toolsDoc"> 
+					<xsl:value-of select="key('tKey',$tID)/category"/>
+				</xsl:for-each>				
+        </td>
 
-         <td class="dueBackCell">
-             <!-- calls function to display date information-->    
+        <td class="dueBackCell">
+            <!-- calls function to display date information-->    
             <xsl:value-of select= "format-date(fixt:getDate(Days,Weeks,Start_Date), ' [MNn] [D1]  [Y1]')"/>
-             <!-- 2.d Date format using XPath 2.o picture formats -->
-
+            <!-- 2.d Date format using XPath 2.o picture formats -->
          </td>
          
          <td class="chargeCell">
-               <xsl:value-of select= "concat('$',fixt:Charge(Days,Weeks,Tool))"/>
-
-         
+            <!--Uses function fixt:Charge to calculate the total change for the tool --> 
+            <xsl:value-of select= "concat('$',fixt:Charge(Days,Weeks,Tool))"/>
          </td>
 
       </tr>
@@ -127,7 +142,10 @@
 
 
 
-
+   <!--Function to calculate the date the tool us due back
+       This is done by calculating the total days the user has rented the tool for
+       Then adding that time to the date that the user rented the tool on. This 
+        results in the date the tool is due back--> 
     <xsl:function name="fixt:getDate" as="xs:date">
    
 	   <xsl:param name="Days" as="xs:integer" />
@@ -136,20 +154,23 @@
 
 				
 		<xsl:variable name="TotalDays" select="$Days+($Weeks*7)"/>
-
 		<xsl:variable name="Days" select="concat('P',$TotalDays,'D')"/>
 
 
 		<xsl:variable name="updatedDate" as="xs:date" select="xs:date($Start_Date) + xs:dayTimeDuration($Days)"/>
 
-         <xsl:sequence select="$updatedDate" />
-                     
-   
-   
-   
+        <!--variable updatedDate contains the date that the tool us due back--> 
+        <xsl:sequence select="$updatedDate" />
+                   
    </xsl:function>
    
+   
+   
    <!--2.e Application of XML Schema Datatype to a function -->
+   
+   <!--Function calculates the charge for the tool
+    This utilizes the dailyRate and weeklyRate for each tool
+    along with the amount of time the user has rented the tool-->
    <xsl:function name="fixt:Charge" as="xs:integer"> 
    
 	  
@@ -159,40 +180,40 @@
 	
 
 	<!-- 2.c data value looked up by using doc --> 
-	 <xsl:variable name="toolList"
+		 <xsl:variable name="toolList"
                 select="doc('tgetools.xml')/equipment/tool[@toolID =  $tID]" />
                 
                 <!--2e Application of XML Schema Datatype to a variable -->
-                <xsl:variable name="Drate" as="xs:integer" select="xs:integer($toolList/dailyRate)*$Days" />  
-                <xsl:variable name="Wrate" as="xs:integer" select="xs:integer($toolList/weeklyRate)*$Weeks" />
-				<xsl:variable name="totalRate" as="xs:integer" select="$Drate+$Wrate" />
+         <xsl:variable name="Drate" as="xs:integer" select="xs:integer($toolList/dailyRate)*$Days" />  
+         <xsl:variable name="Wrate" as="xs:integer" select="xs:integer($toolList/weeklyRate)*$Weeks" />
+		 <xsl:variable name="totalRate" as="xs:integer" select="$Drate+$Wrate" />
 
-
-                <xsl:sequence select="$totalRate" />
+         <!--total Rate contains the rate calculated for each tool for the specified amount of time --> 
+         <xsl:sequence select="$totalRate" />
 
    </xsl:function>
    
    
    <!--2.e Application of XML Schema Datatype to a function -->
+   <!--Function fetches and concats the data from the user so it can be easy displayed -->
    <xsl:function name="fixt:CustomerData" as="xs:string"> 
    
 	  
 	<xsl:param name="Customer" as="xs:string" />
-	   
-	<xsl:variable name="customer"
+	  
+	<!--Uses the doc function to navigate and retieve data from the customer file-->
+	<xsl:variable name="cust"
                 select="doc('tgecustomers.xml')/customers/customer[@custID =  $Customer]" />
                 
      
        
-    <xsl:variable name="custData" as = "xs:string" select="concat($customer/firstName,' ',$customer/lastName,' ',$customer/street,' ',$customer/state,' ',$customer/ZIP)"/>
+    <xsl:variable name="custData" as = "xs:string" select="concat($cust/firstName,' ',$cust/lastName,' ',$cust/street,' ', $cust/city,', ',$cust/state,' ',$cust/ZIP)"/>
 
-
-     <xsl:sequence select="$custData" />
+	<!--custData contains the customer data that has been concatinated together.-->
+    <xsl:sequence select="$custData" />
      
    </xsl:function>
    
-   
-
-
+  
 </xsl:stylesheet>
 

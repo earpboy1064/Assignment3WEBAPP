@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  
+	Wyatt LeMaster 
+
+   Assignment 3
+   Comp 6000 
+   The Good Earth rental list
+
+   Filename:         tgerentals.xml
+   Supporting Files: 
+
+-->
 <rentals>
    <rental>
       <Customer>cust123</Customer>
