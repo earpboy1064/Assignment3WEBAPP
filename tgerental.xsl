@@ -60,7 +60,6 @@
                   <thead>                  
                      <tr>
                         <th>Customer</th>
-                        <th>ID</th>
                         <th>Tool ID</th>
                         <th>Tool</th>
                         <th>Category</th>
@@ -92,11 +91,15 @@
       <tr>
       <th class = "CustomerCell" >
        <xsl:apply-templates select="rental/Customer" />
+       
+        <xsl:value-of select= "fixt:CustomerData(Customer)"/>
+
+       
+       
+       
 
       </th>
-         <th class="IDcell">
-            <xsl:value-of select="Customer" />
-         </th>
+         
          <th class="ToolIDCell">
            <xsl:value-of select="Tool" />
          </th>
@@ -152,6 +155,9 @@
       
 </xsl:template>
 
+
+
+
 <xsl:template match="Customer">
 
       <xsl:variable name="custList"
@@ -173,6 +179,10 @@
                </p>
  </xsl:template>
 
+
+
+
+
       <xsl:function name="fixt:getDate" as="xs:date">
    
 	   <xsl:param name="Days" as="xs:integer" />
@@ -193,6 +203,11 @@
    </xsl:function>
    
    
+   
+   
+   
+   
+   
    <xsl:function name="fixt:Charge" as="xs:integer"> <!--2e Application of XML Schema Datatype to a function -->
    
 	  
@@ -211,6 +226,31 @@
 
 
                 <xsl:sequence select="$totalRate" />
+
+
+				
+                
+   
+   </xsl:function>
+   
+   
+   
+   <xsl:function name="fixt:CustomerData" as="xs:string"> <!--2e Application of XML Schema Datatype to a function -->
+   
+	  
+	   	<xsl:param name="Customer" as="xs:string" />
+	    
+	
+
+
+	 <xsl:variable name="customer"
+                select="doc('tgecustomers.xml')/customers/customer[@custID =  $Customer]" />
+                
+               
+               	<xsl:variable name="custData" as = "xs:string" select="concat($customer/firstName,$customer/lastName,$customer/street,$customer/state,$customer/zip,$customer/phone,$customer/email)"/>
+
+
+                <xsl:sequence select="$custData" />
 
 
 				
